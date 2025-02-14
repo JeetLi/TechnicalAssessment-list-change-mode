@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback, memo } from "react";
 import "./page.css";
 
 type Mode = "add" | "remove";
@@ -12,90 +12,86 @@ const useRenderCounter = () => {
   return counter.current;
 };
 
-const RenderCountLabel = ({
-  count,
-  label,
-}: {
-  count: number;
-  label: string;
-}) => {
-  return (
-    <div>
-      {label} renders: <span style={{ color: "red" }}>{count}</span>
-    </div>
-  );
-};
+const RenderCountLabel = memo(
+  ({ count, label }: { count: number; label: string }) => {
+    return (
+      <div>
+        {label} renders: <span style={{ color: "red" }}>{count}</span>
+      </div>
+    );
+  }
+);
 
-const Button = ({
-  onClick,
-  label,
-  className,
-  hideCounter,
-}: {
-  onClick: () => void;
-  label: string;
-  className?: string;
-  hideCounter?: boolean;
-}) => {
-  const counter = useRenderCounter();
-  return (
-    <div>
-      <button className={className || ""} onClick={onClick}>
-        {label}
-      </button>
-      {!hideCounter && <RenderCountLabel label="Button" count={counter} />}
-    </div>
-  );
-};
+const Button = memo(
+  ({
+    onClick,
+    label,
+    className,
+    hideCounter,
+  }: {
+    onClick: () => void;
+    label: string;
+    className?: string;
+    hideCounter?: boolean;
+  }) => {
+    const counter = useRenderCounter();
+    return (
+      <div>
+        <button className={className || ""} onClick={onClick}>
+          {label}
+        </button>
+        {!hideCounter && <RenderCountLabel label="Button" count={counter} />}
+      </div>
+    );
+  }
+);
 
-const AddToEndButton = ({ onClick }: { onClick: () => void }) => {
+const AddToEndButton = memo(({ onClick }: { onClick: () => void }) => {
   return <Button onClick={onClick} label="Add to end" className="button" />;
-};
+});
 
-const AddToStartButton = ({ onClick }: { onClick: () => void }) => {
+const AddToStartButton = memo(({ onClick }: { onClick: () => void }) => {
   return <Button onClick={onClick} label="Add to start" />;
-};
+});
 
-const ChangeModeButton = ({
-  action,
-  onClick,
-}: {
-  action: Mode;
-  onClick: () => void;
-}) => {
-  return <Button onClick={onClick} label={`change mode: ${action}`} />;
-};
+const ChangeModeButton = memo(
+  ({ action, onClick }: { action: Mode; onClick: () => void }) => {
+    return <Button onClick={onClick} label={`change mode: ${action}`} />;
+  }
+);
 
-const ListItem = ({
-  item,
-  index,
-  onRemove,
-}: {
-  item: string;
-  index: number;
-  onRemove: (index: number) => void;
-}) => {
-  const itemRef = useRef<HTMLLIElement | null>(null);
+const ListItem = memo(
+  ({
+    item,
+    index,
+    onRemove,
+  }: {
+    item: string;
+    index: number;
+    onRemove: (index: number) => void;
+  }) => {
+    const itemRef = useRef<HTMLLIElement | null>(null);
 
-  const onClick = () => {
-    if (itemRef.current) {
-      itemRef.current.style.animation = "none";
-      itemRef.current.offsetHeight;
-      itemRef.current.style.animation = "pulse-animation 1.5s ease-in-out";
-    }
-  };
-  return (
-    <li ref={itemRef} onClick={onClick} className="li-item">
-      {item}
-      <Button
-        className="btn-remove"
-        onClick={() => onRemove(index)}
-        label="x"
-        hideCounter
-      />
-    </li>
-  );
-};
+    const onClick = () => {
+      if (itemRef.current) {
+        itemRef.current.style.animation = "none";
+        itemRef.current.offsetHeight;
+        itemRef.current.style.animation = "pulse-animation 1.5s ease-in-out";
+      }
+    };
+    return (
+      <li ref={itemRef} onClick={onClick} className="li-item">
+        {item}
+        <Button
+          className="btn-remove"
+          onClick={() => onRemove(index)}
+          label="x"
+          hideCounter
+        />
+      </li>
+    );
+  }
+);
 
 const List = () => {
   const counter = useRenderCounter();
@@ -103,25 +99,25 @@ const List = () => {
   const [items, setItems] = useState<string[]>([]);
   const [action, setAction] = useState<Mode>("add");
 
-  const handleChangeAction = () => {
+  const handleChangeAction = useCallback(() => {
     setAction((prev) => (prev === "add" ? "remove" : "add"));
-  };
+  }, []);
 
-  const handlRemoveItems = () => {
+  const handlRemoveItems = useCallback(() => {
     setItems((prev) => prev.slice(0, prev.length - 1));
-  };
+  }, []);
 
-  const handleRemoveItem = (index: number) => {
-    return setItems(items.filter((_, i) => i !== index));
-  };
+  const handleRemoveItem = useCallback((index: number) => {
+    setItems((prev) => prev.filter((_, i) => i !== index));
+  }, []);
 
-  const handleAddItem = () => {
+  const handleAddItem = useCallback(() => {
     setItems((prev) => [...prev, `${index.current++}-item`]);
-  };
+  }, []);
 
-  const handleAddToStart = () => {
+  const handleAddToStart = useCallback(() => {
     setItems((prev) => [`${index.current++}-item-handle`, ...prev]);
-  };
+  }, []);
 
   useEffect(() => {
     const timeout = setTimeout(
@@ -129,7 +125,7 @@ const List = () => {
       1000
     );
     return () => clearTimeout(timeout);
-  }, [items, action]);
+  }, [items, action, handleAddItem, handlRemoveItems]);
 
   return (
     <ul className="list">
