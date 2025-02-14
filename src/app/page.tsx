@@ -124,11 +124,12 @@ const List = () => {
   };
 
   useEffect(() => {
-    setTimeout(
+    const timeout = setTimeout(
       () => (action === "add" ? handleAddItem() : handlRemoveItems()),
       1000
     );
-  });
+    return () => clearTimeout(timeout);
+  }, [items, action]);
 
   return (
     <ul className="list">
