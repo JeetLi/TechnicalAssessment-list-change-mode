@@ -106,7 +106,9 @@ const List = () => {
     setItems((prev) => [...prev, `${index}-item`]);
   };
 
-  const handleAddToStart = () => {};
+  const handleAddToStart = () => {
+    setItems((prev) => [`${index++}-item-handle`, ...prev]);
+  };
 
   useEffect(() => {
     setTimeout(
