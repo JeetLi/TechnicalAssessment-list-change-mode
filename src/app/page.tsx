@@ -26,24 +26,34 @@ const RenderCountLabel = ({
   );
 };
 
-const AddToEndButton = ({ onClick }: { onClick: () => void }) => {
+const Button = ({
+  onClick,
+  label,
+  className,
+  hideCounter,
+}: {
+  onClick: () => void;
+  label: string;
+  className?: string;
+  hideCounter?: boolean;
+}) => {
   const counter = useRenderCounter();
   return (
-    <div className="button">
-      <button onClick={onClick}>Add to end</button>
-      <RenderCountLabel label="Button" count={counter} />
+    <div>
+      <button className={className || ""} onClick={onClick}>
+        {label}
+      </button>
+      {!hideCounter && <RenderCountLabel label="Button" count={counter} />}
     </div>
   );
 };
 
+const AddToEndButton = ({ onClick }: { onClick: () => void }) => {
+  return <Button onClick={onClick} label="Add to end" className="button" />;
+};
+
 const AddToStartButton = ({ onClick }: { onClick: () => void }) => {
-  const counter = useRenderCounter();
-  return (
-    <div>
-      <button onClick={onClick}>Add to start</button>
-      <RenderCountLabel label="Button" count={counter} />
-    </div>
-  );
+  return <Button onClick={onClick} label="Add to start" />;
 };
 
 const ChangeModeButton = ({
@@ -53,13 +63,7 @@ const ChangeModeButton = ({
   action: Mode;
   onClick: () => void;
 }) => {
-  const counter = useRenderCounter();
-  return (
-    <div>
-      <button onClick={onClick}>change mode: {action}</button>
-      <RenderCountLabel label="Button" count={counter} />
-    </div>
-  );
+  return <Button onClick={onClick} label={`change mode: ${action}`} />;
 };
 
 const ListItem = ({
@@ -83,9 +87,12 @@ const ListItem = ({
   return (
     <li ref={itemRef} onClick={onClick} className="li-item">
       {item}
-      <button className="btn-remove" onClick={() => onRemove(index)}>
-        x
-      </button>
+      <Button
+        className="btn-remove"
+        onClick={() => onRemove(index)}
+        label="x"
+        hideCounter
+      />
     </li>
   );
 };
