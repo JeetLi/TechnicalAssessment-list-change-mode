@@ -71,9 +71,17 @@ const ListItem = ({
   index: number;
   onRemove: (index: number) => void;
 }) => {
-  const onClick = () => {};
+  const itemRef = useRef<HTMLLIElement | null>(null);
+
+  const onClick = () => {
+    if (itemRef.current) {
+      itemRef.current.style.animation = "none";
+      itemRef.current.offsetHeight;
+      itemRef.current.style.animation = "pulse-animation 1.5s ease-in-out";
+    }
+  };
   return (
-    <li onClick={onClick} className="li-item">
+    <li ref={itemRef} onClick={onClick} className="li-item">
       {item}
       <button className="btn-remove" onClick={() => onRemove(index)}>
         x
