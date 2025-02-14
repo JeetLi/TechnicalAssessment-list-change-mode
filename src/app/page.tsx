@@ -90,10 +90,9 @@ const ListItem = ({
   );
 };
 
-let index = 0;
-
 const List = () => {
   const counter = useRenderCounter();
+  const index = useRef<number>(0);
   const [items, setItems] = useState<string[]>([]);
   const [action, setAction] = useState<Mode>("add");
 
@@ -110,12 +109,11 @@ const List = () => {
   };
 
   const handleAddItem = () => {
-    index++;
-    setItems((prev) => [...prev, `${index}-item`]);
+    setItems((prev) => [...prev, `${index.current++}-item`]);
   };
 
   const handleAddToStart = () => {
-    setItems((prev) => [`${index++}-item-handle`, ...prev]);
+    setItems((prev) => [`${index.current++}-item-handle`, ...prev]);
   };
 
   useEffect(() => {
